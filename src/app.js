@@ -1,195 +1,337 @@
-const storage = {
-  get(key, fallback) {
-    try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; }
-  },
-  set(key, value) { localStorage.setItem(key, JSON.stringify(value)); },
-  remove(key) { localStorage.removeItem(key); }
+const STORAGE_KEYS = {
+  profile: 'nhh.profile.v1',
+  scheduler: 'nhh.scheduler.v1'
 };
 
-const state = {
-  profile: storage.get('hub.profile', {}),
-  checks: storage.get('hub.checks', {}),
-  selectedTraining: 0
-};
+const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+const DAY_SHORT = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+const START_MIN = 7 * 60;
+const END_MIN = 17 * 60;
+const SLOT_MIN = 15;
 
-function el(tag, className, html = '') {
-  const node = document.createElement(tag);
-  if (className) node.className = className;
-  if (html) node.innerHTML = html;
-  return node;
+let profile = loadJSON(STORAGE_KEYS.profile, {});
+let scheduleState = loadJSON(STORAGE_KEYS.scheduler, {
+  monthlyTarget: 100,
+  targetDays: 20,
+  targetBasis: 'working',
+  events: []
+});
+
+function loadJSON(key, fallback) {
+  try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; }
+}
+function saveJSON(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
+function byId(id) { return document.getElementById(id); }
+function minutesToTime(total) {
+  const hour24 = Math.floor(total / 60);
+  const minute = total % 60;
+  const suffix = hour24 >= 12 ? 'PM' : 'AM';
+  const hour12 = ((hour24 + 11) % 12) + 1;
+  return `${hour12}:${String(minute).padStart(2, '0')} ${suffix}`;
+}
+function formatDuration(min) {
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return h ? `${h}h ${m ? `${m}m` : ''}`.trim() : `${m}m`;
+}
+function money(value) { return `$${value.toFixed(2)}`; }
+
+function initNavigation() {
+  document.querySelectorAll('.nav-item').forEach(button => {
+    button.addEventListener('click', () => {
+      document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+      document.querySelectorAll('.view').forEach(view => view.classList.remove('active-view'));
+      button.classList.add('active');
+      byId(button.dataset.view).classList.add('active-view');
+    });
+  });
 }
 
-function escapeHtml(value = '') {
-  return String(value).replace(/[&<>"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[char]));
+function initSettings() {
+  const dialog = byId('settingsDialog');
+  const form = byId('profileForm');
+  byId('openSettings').addEventListener('click', () => {
+    Object.entries(profile).forEach(([key, value]) => {
+      if (form.elements[key] && form.elements[key].type !== 'file') form.elements[key].value = value;
+    });
+    dialog.showModal();
+  });
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    const data = new FormData(form);
+    profile = {
+      firstName: data.get('firstName') || '',
+      preferredName: data.get('preferredName') || '',
+      lastName: data.get('lastName') || '',
+      birthday: data.get('birthday') || '',
+      hireDate: data.get('hireDate') || '',
+      photo: profile.photo || ''
+    };
+    const photo = form.elements.photo.files[0];
+    if (photo) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        profile.photo = reader.result;
+        saveJSON(STORAGE_KEYS.profile, profile);
+        renderHome();
+        dialog.close();
+      };
+      reader.readAsDataURL(photo);
+    } else {
+      saveJSON(STORAGE_KEYS.profile, profile);
+      renderHome();
+      dialog.close();
+    }
+  });
+  byId('clearProfile').addEventListener('click', () => {
+    profile = {};
+    saveJSON(STORAGE_KEYS.profile, profile);
+    form.reset();
+    renderHome();
+  });
 }
 
-function displayName() {
-  return state.profile.preferredName || state.profile.firstName || 'new teammate';
-}
-
-function rampUpInfo() {
-  if (!state.profile.hireDate) return { currentMonth: null, percent: null };
-  const hire = new Date(`${state.profile.hireDate}T00:00:00`);
-  if (Number.isNaN(hire.getTime())) return { currentMonth: null, percent: null };
-  const now = new Date();
-  const months = (now.getFullYear() - hire.getFullYear()) * 12 + (now.getMonth() - hire.getMonth()) + 1;
-  const clamped = Math.min(Math.max(months, 1), 6);
+function rampInfo() {
   const schedule = [0, 25, 50, 75, 75, 100];
-  return { currentMonth: clamped, percent: schedule[clamped - 1] };
+  if (!profile.hireDate) return { currentMonth: 1, percentage: 0, schedule };
+  const hire = new Date(`${profile.hireDate}T00:00:00`);
+  const now = new Date();
+  const monthDiff = Math.max(0, (now.getFullYear() - hire.getFullYear()) * 12 + now.getMonth() - hire.getMonth());
+  const currentMonth = Math.min(6, monthDiff + 1);
+  return { currentMonth, percentage: schedule[currentMonth - 1], schedule };
 }
 
 function renderHome() {
-  const view = document.getElementById('home');
-  const ramp = rampUpInfo();
-  const avatar = state.profile.photoData ? `<img class="avatar" src="${state.profile.photoData}" alt="Profile photo">` : `<div class="avatar">${displayName().charAt(0).toUpperCase()}</div>`;
-  view.innerHTML = `
+  const name = profile.preferredName || profile.firstName || 'Therapist';
+  const ramp = rampInfo();
+  byId('home').innerHTML = `
     <div class="hero">
       <div class="card">
-        <div class="profile-strip">${avatar}<div><p class="eyebrow">Daily operational dashboard</p><h2>Welcome, ${escapeHtml(displayName())}</h2><p>Use this home screen to quickly check ramp-up progress and keep your daily, weekly, and monthly workflow tucked away until needed.</p></div></div>
+        <div class="profile-strip">
+          ${profile.photo ? `<img class="avatar" src="${profile.photo}" alt="Profile photo" />` : `<div class="avatar">${name.charAt(0)}</div>`}
+          <div>
+            <p class="eyebrow">Daily Dashboard</p>
+            <h2>Welcome, ${name}</h2>
+            <p>Keep the day focused, sustainable, and organized.</p>
+          </div>
+        </div>
       </div>
-      <div class="card"><p class="eyebrow">Current ramp-up</p><h3>${ramp.currentMonth ? `Month ${ramp.currentMonth}` : 'Hire date needed'}</h3><p class="large-metric">${ramp.percent !== null ? `${ramp.percent}%` : '—'}</p>${ramp.percent === 100 ? '<p class="meta-pill">⭐ Incentive Eligible</p>' : ''}</div>
+      <div class="card">
+        <p class="eyebrow">Current Ramp-Up</p>
+        <h3>Month ${ramp.currentMonth} · ${ramp.percentage}%</h3>
+        <div class="ramp-grid">${ramp.schedule.map((pct, index) => `
+          <div class="ramp-month ${index + 1 === ramp.currentMonth ? 'current' : ''}">
+            <span>Month ${index + 1}</span><strong>${pct}%</strong>${index === 5 ? '<small>⭐ Incentive Eligible</small>' : ''}
+          </div>
+        `).join('')}</div>
+      </div>
     </div>
     <div class="section-grid">
-      <div class="card full" id="rampCard"></div>
-      <div class="card full" id="checklistCard"></div>
-    </div>`;
-  renderRampCard();
-  renderChecklist('daily');
-}
-
-function renderRampCard() {
-  const { currentMonth } = rampUpInfo();
-  const schedule = [0, 25, 50, 75, 75, 100];
-  const card = document.getElementById('rampCard');
-  card.innerHTML = `<div class="header-row"><div><p class="eyebrow">Ramp-up progress</p><h3>Build sustainable habits while productivity increases</h3></div></div><div class="ramp-grid">${schedule.map((pct, i) => `<div class="ramp-month ${currentMonth === i + 1 ? 'current' : ''}"><span>Month ${i + 1}</span><strong>${pct}%</strong>${i === 5 ? '<small>⭐ Incentive Eligible</small>' : ''}</div>`).join('')}</div>`;
-}
-
-function renderChecklist(kind) {
-  const card = document.getElementById('checklistCard');
-  const items = HUB_DATA.checklists[kind];
-  card.innerHTML = `
-    <div class="header-row"><div><p class="eyebrow">Workflow checklist</p><h3>Daily / Weekly / Monthly Checklist</h3></div></div>
-    <div class="check-tabs">${['daily','weekly','monthly'].map(tab => `<button class="tab-button ${tab === kind ? 'active' : ''}" data-check-tab="${tab}">${tab[0].toUpperCase() + tab.slice(1)}</button>`).join('')}</div>
-    <div class="checklist">${items.map((text, i) => checkboxRow(kind, i, text)).join('')}<label class="check-item"><input type="checkbox" data-check="${kind}.other"><span><strong>Other:</strong><input class="other-input" data-other="${kind}" placeholder="Add your own ${kind} item" value="${escapeHtml(state.checks[`${kind}.otherText`] || '')}"></span></label></div>`;
-}
-
-function checkboxRow(kind, i, text) {
-  const key = `${kind}.${i}`;
-  return `<label class="check-item"><input type="checkbox" data-check="${key}" ${state.checks[key] ? 'checked' : ''}><span>${escapeHtml(text)}</span></label>`;
-}
-
-function renderWelcome() {
-  const view = document.getElementById('welcome');
-  view.innerHTML = `
-    <div class="card">
-      <p class="eyebrow">Welcome Center</p><h2>Our mission, or noble purpose, is delivering care that changes people’s lives.</h2>
-      <p>Organizational growth happens through connection, support, and shared purpose.</p>
+      <div class="card full">
+        <div class="header-row"><div><p class="eyebrow">Workflow</p><h3>Checklist</h3></div></div>
+        <div class="check-tabs">
+          <button class="tab-button active" data-check="daily">Daily</button>
+          <button class="tab-button" data-check="weekly">Weekly</button>
+          <button class="tab-button" data-check="monthly">Monthly</button>
+        </div>
+        <div id="checklistPanel"></div>
+      </div>
+      <div class="card full">${schedulerTemplate()}</div>
     </div>
-    <div class="section-grid" style="margin-top:20px;">
-      <div class="card"><h3>Welcome Message</h3><p><strong>Welcome to the team!</strong></p><p>We’re genuinely thrilled you’re here. Your first month brings a lot of new information, new systems, and new rhythms. There is no pressure to absorb everything at once or to remember it all, ever.</p><p>These resources exist to make information easy to find when you need it. Stay curious, take notes, ask questions, and give yourself plenty of grace as you grow into your role.</p></div>
-      <div class="card"><h3>About Centerstone</h3><p>Centerstone is a nonprofit health system specializing in mental health and substance use disorder treatment. Our mission is delivering care that changes people’s lives.</p><p>Centerstone School-Based Services partners with public, charter, and private schools across Tennessee to increase access to mental health services for children, adolescents, and families.</p><div class="resource-row"><a class="link-button" href="https://centerstone.org" target="_blank">centerstone.org</a><a class="link-button" href="https://www.instagram.com/centerstonehealth/" target="_blank">Instagram</a></div></div>
-      <div class="card full"><div class="header-row"><div><p class="eyebrow">Required feature</p><h3>Meet Your Leadership Team</h3></div></div><div class="accordion">${HUB_DATA.leadership.map(renderLeader).join('')}</div></div>
-      <div class="card full"><h3>Growing Together</h3><p><strong>End of the Year Celebration — May 2021.</strong> During a time of uncertainty and change, our team continued showing up for students, families, and one another.</p><p><strong>Back to School Bash — 2025.</strong> School-Based Services continues to grow across Tennessee as we welcome new clinicians, expand partnerships, and create new positions.</p></div>
-      <div class="card full"><h3>The day in the life of a school-based therapist</h3><p>Placeholder for the view-only PowerPoint page-turning display.</p></div>
-    </div>`;
+  `;
+  initChecklist();
+  initScheduler();
 }
 
-function renderLeader(person, index) {
-  const initials = person.name.split(' ').map(part => part[0]).slice(0,2).join('');
-  const extraLinks = [person.linkedIn ? { label: 'LinkedIn', url: person.linkedIn } : null, ...(person.links || [])].filter(Boolean);
-  return `<details class="dossier"><summary><div class="dossier-header"><div class="dossier-photo">${initials}</div><div><strong>${escapeHtml(person.name)}</strong><br><span>${escapeHtml(person.title)}</span></div></div></summary><div class="detail-body"><p>${escapeHtml(person.phone || '')}<br><a href="mailto:${escapeHtml(person.email)}">${escapeHtml(person.email)}</a></p><div class="resource-row">${extraLinks.map(link => `<a class="link-button" href="${link.url}" target="_blank">${escapeHtml(link.label)}</a>`).join('')}</div><p>${escapeHtml(person.bio)}</p><label><strong>Learn Something New</strong><textarea class="note-field" data-leader-note="${index}" placeholder="Add a note you want to remember.">${escapeHtml(storage.get(`hub.leaderNote.${index}`, ''))}</textarea></label></div></details>`;
-}
-
-function renderTraining() {
-  const view = document.getElementById('training');
-  view.innerHTML = `
-    <div class="card"><p class="eyebrow">Training Hub</p><h2>Training Dashboard</h2><p>Each training opens independently. Training details, objectives, resources, homework, and completion feedback stay tucked away until selected.</p></div>
-    <div class="section-grid" style="margin-top:20px;">
-      <div class="card full"><h3>Training Calendar</h3><p>Month-view calendar placeholder. This will be the editable training schedule area.</p><div class="resource-row"><select id="districtCalendar"><option value="">Select a school district calendar</option>${HUB_DATA.calendars.map(cal => `<option value="${cal.url}">${cal.label}</option>`).join('')}</select></div></div>
-      <div class="card full"><h3>Tools & Tech Check</h3><div class="checklist">${['Laptop, charger, and access basics confirmed', 'Outlook and calendar access confirmed', 'Avatar access confirmed', 'Eleos access confirmed', 'Zoom access confirmed'].map((x, i) => checkboxRow('tech', i, x)).join('')}</div><div class="resource-row"><a class="link-button" href="https://forms.office.com/Pages/ResponsePage.aspx?id=vQjgZfr1wUa7MrgrFjMTBS_hSQGE5SBOtXs1mk5el-hUMFBNSThMTlNXMjVCWFpROVpNMEk1TE1EVi4u" target="_blank">Confidence Questionnaire</a><button class="primary-button" type="button">90-Day Review</button></div></div>
-      <div class="card full"><div class="training-layout"><div class="training-list">${HUB_DATA.trainings.map((training, i) => `<button class="training-button ${state.selectedTraining === i ? 'active' : ''}" data-training="${i}">${i + 1}. ${escapeHtml(training.title)}</button>`).join('')}</div><div id="trainingDetail"></div></div></div>
-    </div>`;
-  renderTrainingDetail();
-}
-
-function renderTrainingDetail() {
-  const container = document.getElementById('trainingDetail');
-  const training = HUB_DATA.trainings[state.selectedTraining];
-  if (!container || !training) return;
-  container.innerHTML = `<div class="soft-card"><p class="eyebrow">Selected training</p><h3>${escapeHtml(training.title)}</h3><p><span class="meta-pill">Trainer: ${escapeHtml(training.trainer)}</span></p><p><strong>Purpose:</strong> ${escapeHtml(training.purpose)}</p><h4>Objectives</h4><ol class="objectives">${training.objectives.map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ol><h4>Resources</h4><div class="resource-row">${training.resources.map(item => `<button class="ghost-button" type="button">${escapeHtml(item)}</button>`).join('')}</div><h4>Homework</h4><p>${escapeHtml(training.homework)}</p><h4>Feedback & Completion</h4><p class="muted">Submission of this survey is acknowledgment of completion by ${escapeHtml(displayName())}. Falsification of training completion or attendance documentation may result in disciplinary action.</p><div class="feedback-grid"><label>Content relevant to your role<select><option>Yes</option><option>Somewhat</option><option>No</option></select></label><label>Format was helpful<select><option>Yes</option><option>Somewhat</option><option>No</option></select></label><label>Overall score<select><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select></label><label class="wide">Specific feedback<textarea></textarea></label></div><button class="primary-button" type="button" data-complete-training="${state.selectedTraining}">Submit feedback and mark complete</button></div>`;
-}
-
-function bindEvents() {
-  document.addEventListener('click', event => {
-    const nav = event.target.closest('[data-view]');
-    if (nav) {
-      document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-      nav.classList.add('active');
-      document.querySelectorAll('.view').forEach(view => view.classList.remove('active-view'));
-      document.getElementById(nav.dataset.view).classList.add('active-view');
-    }
-    const tab = event.target.closest('[data-check-tab]');
-    if (tab) renderChecklist(tab.dataset.checkTab);
-    const training = event.target.closest('[data-training]');
-    if (training) { state.selectedTraining = Number(training.dataset.training); renderTraining(); }
-    if (event.target.id === 'openSettings') openSettings();
-    if (event.target.id === 'clearProfile') { storage.remove('hub.profile'); state.profile = {}; renderAll(); document.getElementById('settingsDialog').close(); }
-    if (event.target.matches('[data-complete-training]')) {
-      const key = `training.${event.target.dataset.completeTraining}.complete`;
-      state.checks[key] = true;
-      storage.set('hub.checks', state.checks);
-      event.target.textContent = 'Completed ✓';
-    }
+function initChecklist() {
+  const render = type => {
+    byId('checklistPanel').innerHTML = `
+      <div class="checklist">
+        ${HUB_DATA.checklists[type].map(item => `<label class="check-item"><input type="checkbox" /> <span>${item}</span></label>`).join('')}
+        <label class="check-item"><input type="checkbox" /> <span>Other:<input class="other-input" placeholder="Add your own ${type} item" /></span></label>
+      </div>`;
+  };
+  render('daily');
+  document.querySelectorAll('.tab-button').forEach(button => {
+    button.addEventListener('click', () => {
+      document.querySelectorAll('.tab-button').forEach(tab => tab.classList.remove('active'));
+      button.classList.add('active');
+      render(button.dataset.check);
+    });
   });
+}
 
-  document.addEventListener('change', event => {
-    if (event.target.matches('[data-check]')) {
-      state.checks[event.target.dataset.check] = event.target.checked;
-      storage.set('hub.checks', state.checks);
-    }
-    if (event.target.id === 'districtCalendar' && event.target.value) window.open(event.target.value, '_blank');
+function schedulerTemplate() {
+  return `
+    <div class="scheduler-header">
+      <div>
+        <p class="eyebrow">Scheduling for Success</p>
+        <h2>Scheduler Tool</h2>
+        <p>Your weekly therapy scheduling tool — built for school-based work. This is a productivity simulator, not a calendar.</p>
+      </div>
+      <button class="ghost-button" id="clearSchedule">Clear Week</button>
+    </div>
+    <div class="scheduler-controls">
+      <label>Monthly Target<input id="monthlyTarget" type="number" min="0" step="0.01" /></label>
+      <label>Target Basis<select id="targetBasis"><option value="working">Working days</option><option value="school">School days</option></select></label>
+      <label>Days This Month<input id="targetDays" type="number" min="1" step="1" /></label>
+      <label>District Calendar<select id="calendarSelect"><option value="">Select a district</option>${HUB_DATA.calendars.map(cal => `<option value="${cal.url}">${cal.label}</option>`).join('')}</select></label>
+    </div>
+    <div class="scheduler-note">Incentive is earned for full productivity expectation beginning at 100% FTE, based on the monthly target, not on target reduced from PTO or training days.</div>
+    <div class="planner-wrap"><div class="planner-grid" id="plannerGrid"></div></div>
+    <div class="clinical-summary" id="clinicalSummary"></div>
+    <div class="coaching-panel" id="coachingPanel"></div>
+  `;
+}
+
+function initScheduler() {
+  byId('monthlyTarget').value = scheduleState.monthlyTarget;
+  byId('targetDays').value = scheduleState.targetDays;
+  byId('targetBasis').value = scheduleState.targetBasis;
+  byId('monthlyTarget').addEventListener('input', syncSchedulerControls);
+  byId('targetDays').addEventListener('input', syncSchedulerControls);
+  byId('targetBasis').addEventListener('change', syncSchedulerControls);
+  byId('calendarSelect').addEventListener('change', event => { if (event.target.value) window.open(event.target.value, '_blank'); });
+  byId('clearSchedule').addEventListener('click', () => { scheduleState.events = []; persistScheduler(); renderScheduler(); });
+  renderScheduler();
+}
+
+function syncSchedulerControls() {
+  scheduleState.monthlyTarget = Number(byId('monthlyTarget').value || 0);
+  scheduleState.targetDays = Math.max(1, Number(byId('targetDays').value || 1));
+  scheduleState.targetBasis = byId('targetBasis').value;
+  persistScheduler();
+  renderScheduler();
+}
+function persistScheduler() { saveJSON(STORAGE_KEYS.scheduler, scheduleState); }
+function getType(id) { return HUB_DATA.sessionTypes.find(type => type.id === id); }
+function dailyTarget(dayIndex) {
+  const base = Number(scheduleState.monthlyTarget || 0) / Math.max(1, Number(scheduleState.targetDays || 1));
+  const ptoReduction = scheduleState.events.filter(event => event.day === dayIndex).reduce((max, event) => Math.max(max, getType(event.typeId)?.ptoFactor || 0), 0);
+  return base * (1 - ptoReduction);
+}
+function eventCredit(event) {
+  const type = getType(event.typeId);
+  if (!type) return 0;
+  if (type.requiresParticipants) return type.credit * Number(event.participants || 0);
+  return type.credit;
+}
+function dayStats(dayIndex) {
+  const events = scheduleState.events.filter(event => event.day === dayIndex);
+  const totalTime = events.reduce((sum, event) => sum + getType(event.typeId).duration, 0);
+  const billable = events.reduce((sum, event) => sum + eventCredit(event), 0);
+  const nonBillable = events.reduce((sum, event) => {
+    const type = getType(event.typeId);
+    return sum + (type.category !== 'billable' ? type.duration : 0);
+  }, 0);
+  const target = dailyTarget(dayIndex);
+  return { events, totalTime, billable, nonBillable, target, remaining: Math.max(0, target - billable) };
+}
+
+function renderScheduler() {
+  const grid = byId('plannerGrid');
+  if (!grid) return;
+  const timeRows = [];
+  for (let min = START_MIN; min < END_MIN; min += SLOT_MIN) timeRows.push(min);
+  grid.style.gridTemplateRows = `48px repeat(${timeRows.length}, 30px)`;
+  grid.innerHTML = `<div class="planner-corner">Time</div>${DAY_SHORT.map(day => `<div class="planner-day-head">${day}</div>`).join('')}`;
+  timeRows.forEach(min => {
+    grid.insertAdjacentHTML('beforeend', `<div class="time-cell">${min % 60 === 0 ? minutesToTime(min) : ''}</div>`);
+    DAYS.forEach((_, dayIndex) => grid.insertAdjacentHTML('beforeend', `<button class="slot-cell" data-day="${dayIndex}" data-start="${min}" aria-label="Add session ${DAYS[dayIndex]} ${minutesToTime(min)}"></button>`));
   });
+  document.querySelectorAll('.slot-cell').forEach(cell => cell.addEventListener('click', () => openSessionModal(Number(cell.dataset.day), Number(cell.dataset.start))));
+  scheduleState.events.forEach(event => renderEventBlock(event));
+  renderSummary();
+  renderCoaching();
+}
 
-  document.addEventListener('input', event => {
-    if (event.target.matches('[data-other]')) {
-      state.checks[`${event.target.dataset.other}.otherText`] = event.target.value;
-      storage.set('hub.checks', state.checks);
-    }
-    if (event.target.matches('[data-leader-note]')) storage.set(`hub.leaderNote.${event.target.dataset.leaderNote}`, event.target.value);
-  });
+function renderEventBlock(event) {
+  const grid = byId('plannerGrid');
+  const type = getType(event.typeId);
+  const startRow = 2 + Math.floor((event.start - START_MIN) / SLOT_MIN);
+  const span = Math.max(1, Math.ceil(type.duration / SLOT_MIN));
+  const column = event.day + 2;
+  const block = document.createElement('button');
+  block.className = `event-block ${type.category === 'billable' ? 'billable' : 'nonbillable'}`;
+  block.style.gridColumn = column;
+  block.style.gridRow = `${startRow} / span ${span}`;
+  block.innerHTML = `<strong>${type.label}</strong><span>${minutesToTime(event.start)} · ${formatDuration(type.duration)}</span><small>${type.category === 'billable' ? `${eventCredit(event).toFixed(2)} credits` : event.adminTask || '0 credits'}</small>`;
+  block.addEventListener('click', eventClick => { eventClick.stopPropagation(); openSessionModal(event.day, event.start, event.id); });
+  grid.appendChild(block);
+}
 
-  document.getElementById('profileForm').addEventListener('submit', event => {
+function openSessionModal(day, start, eventId = null) {
+  const existing = eventId ? scheduleState.events.find(event => event.id === eventId) : null;
+  const modal = document.createElement('dialog');
+  modal.className = 'settings-dialog';
+  modal.innerHTML = `
+    <form method="dialog" class="settings-card session-form">
+      <div class="dialog-header"><div><p class="eyebrow">${DAYS[day]} · ${minutesToTime(start)}</p><h2>${existing ? 'Edit Session' : 'Choose Session Time'}</h2></div><button class="icon-button" value="cancel">×</button></div>
+      <label>Session Type<select name="typeId">${HUB_DATA.sessionTypes.map(type => `<option value="${type.id}" ${existing?.typeId === type.id ? 'selected' : ''}>${type.label}</option>`).join('')}</select></label>
+      <label class="participants-field">Participant Count<input name="participants" type="number" min="1" step="1" value="${existing?.participants || ''}" /></label>
+      <label class="admin-field">Admin Activity<select name="adminTask"><option value="">Select activity</option>${HUB_DATA.adminTasks.map(task => `<option ${existing?.adminTask === task ? 'selected' : ''}>${task}</option>`).join('')}</select></label>
+      <label>Optional Note<input name="note" value="${existing?.note || ''}" maxlength="40" /></label>
+      <div class="dialog-actions">${existing ? '<button type="button" class="ghost-button delete-session">Delete</button>' : ''}<button class="primary-button" value="default">Save Session</button></div>
+    </form>`;
+  document.body.appendChild(modal);
+  const form = modal.querySelector('form');
+  const refreshFields = () => {
+    const type = getType(form.elements.typeId.value);
+    modal.querySelector('.participants-field').style.display = type.requiresParticipants ? 'grid' : 'none';
+    modal.querySelector('.admin-field').style.display = type.requiresAdminTask ? 'grid' : 'none';
+  };
+  form.elements.typeId.addEventListener('change', refreshFields);
+  refreshFields();
+  form.addEventListener('submit', event => {
     event.preventDefault();
-    const form = event.currentTarget;
-    const next = Object.fromEntries(new FormData(form).entries());
-    delete next.photo;
-    const file = form.elements.photo.files[0];
-    const save = photoData => {
-      state.profile = { ...state.profile, ...next, ...(photoData ? { photoData } : {}) };
-      storage.set('hub.profile', state.profile);
-      document.getElementById('settingsDialog').close();
-      renderAll();
-    };
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => save(reader.result);
-      reader.readAsDataURL(file);
-    } else save();
+    const data = new FormData(form);
+    const type = getType(data.get('typeId'));
+    if (type.requiresParticipants && !Number(data.get('participants'))) return alert('Participant count is required for group sessions.');
+    const payload = { id: existing?.id || crypto.randomUUID(), day, start, typeId: data.get('typeId'), participants: Number(data.get('participants') || 0), adminTask: data.get('adminTask') || '', note: data.get('note') || '' };
+    scheduleState.events = existing ? scheduleState.events.map(event => event.id === existing.id ? payload : event) : [...scheduleState.events, payload];
+    persistScheduler();
+    modal.close();
+    modal.remove();
+    renderScheduler();
   });
+  const deleteButton = modal.querySelector('.delete-session');
+  if (deleteButton) deleteButton.addEventListener('click', () => { scheduleState.events = scheduleState.events.filter(event => event.id !== existing.id); persistScheduler(); modal.close(); modal.remove(); renderScheduler(); });
+  modal.addEventListener('close', () => modal.remove(), { once: true });
+  modal.showModal();
 }
 
-function openSettings() {
-  const dialog = document.getElementById('settingsDialog');
-  const form = document.getElementById('profileForm');
-  ['firstName','preferredName','lastName','birthday','hireDate'].forEach(name => { form.elements[name].value = state.profile[name] || ''; });
-  dialog.showModal();
+function renderSummary() {
+  const monthlyBillable = DAYS.reduce((sum, _, index) => sum + dayStats(index).billable, 0);
+  const rawTarget = Number(scheduleState.monthlyTarget || 0);
+  const percent = rawTarget ? (monthlyBillable / rawTarget) * 100 : 0;
+  const incentiveSteps = percent >= 100 ? Math.floor(percent - 100) : -1;
+  const incentive = percent >= 100 ? 425 + (Math.max(0, incentiveSteps) * 42.5) : 0;
+  byId('clinicalSummary').innerHTML = `
+    <div class="summary-card month-overview"><strong>Month Overview</strong><span>${monthlyBillable.toFixed(2)} / ${rawTarget.toFixed(2)} credits</span><span>${percent.toFixed(2)}%</span><span>Estimated incentive: ${money(incentive)}</span></div>
+    ${DAYS.map((day, index) => {
+      const stats = dayStats(index);
+      return `<div class="summary-card"><strong>${day}</strong><span>Total Time: ${formatDuration(stats.totalTime)}</span><span>Billable: ${stats.billable.toFixed(2)}</span><span>Non-Billable: ${formatDuration(stats.nonBillable)}</span><span>Remaining Target: ${stats.remaining.toFixed(2)}</span></div>`;
+    }).join('')}`;
 }
 
-function renderAll() {
-  renderHome();
-  renderWelcome();
-  renderTraining();
+function renderCoaching() {
+  const messages = [];
+  DAYS.forEach((day, index) => {
+    const stats = dayStats(index);
+    if (stats.billable < stats.target) messages.push(`${day}: add ${stats.remaining.toFixed(2)} billable credits to meet the adjusted daily target.`);
+    if (stats.nonBillable > 120) messages.push(`${day}: non-billable time is over two hours. Look for tasks that can be tightened or moved.`);
+    if (stats.totalTime > 480) messages.push(`${day}: scheduled time exceeds an 8-hour workday.`);
+    if (stats.totalTime < 300 && stats.billable < stats.target) messages.push(`${day}: open space may be underused for target-building sessions.`);
+  });
+  byId('coachingPanel').innerHTML = `<div class="card compact-card"><p class="eyebrow">Coaching Engine</p><h3>Scheduling Recommendations</h3>${messages.length ? `<ul>${messages.slice(0, 6).map(message => `<li>${message}</li>`).join('')}</ul>` : '<p>Your current week is balanced against the entered target.</p>'}</div>`;
 }
 
-bindEvents();
-renderAll();
+function renderPlaceholder(id, title) {
+  byId(id).innerHTML = `<div class="card"><p class="eyebrow">Coming next</p><h2>${title}</h2><p>This section is intentionally paused while the Scheduler Tool is built first.</p></div>`;
+}
+
+initNavigation();
+initSettings();
+renderHome();
+renderPlaceholder('welcome', 'Welcome Center');
+renderPlaceholder('training', 'Training Dashboard');
