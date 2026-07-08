@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>New Hire Hub</title>
+    <link rel="stylesheet" href="src/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Primary navigation">
+        <div class="brand-lockup">
+          <div class="brand-mark">CS</div>
+          <div>
+            <p class="eyebrow">School-Based Services</p>
+            <h1>New Hire Hub</h1>
+          </div>
+        </div>
+        <nav class="nav-list">
+          <button class="nav-item active" data-view="home">⌂ Home</button>
+          <button class="nav-item" data-view="welcome">◇ Welcome Center</button>
+          <button class="nav-item" data-view="training">▣ Training Dashboard</button>
+        </nav>
+        <button class="settings-button" id="openSettings">⚙ Settings</button>
+      </aside>
+
+      <main class="main-content">
+        <section id="home" class="view active-view"></section>
+        <section id="welcome" class="view"></section>
+        <section id="training" class="view"></section>
+      </main>
+    </div>
+
+    <dialog id="settingsDialog" class="settings-dialog">
+      <form method="dialog" class="settings-card" id="profileForm">
+        <div class="dialog-header">
+          <div>
+            <p class="eyebrow">Profile saves locally on this device</p>
+            <h2>Settings</h2>
+          </div>
+          <button class="icon-button" value="cancel" aria-label="Close settings">×</button>
+        </div>
+        <div class="profile-grid">
+          <label>First Name<input name="firstName" autocomplete="given-name" /></label>
+          <label>Preferred Name<input name="preferredName" /></label>
+          <label>Last Name<input name="lastName" autocomplete="family-name" /></label>
+          <label>Birthday MM/DD<input name="birthday" placeholder="MM/DD" /></label>
+          <label>Hire Date<input name="hireDate" type="date" /></label>
+          <label>Profile Photo<input name="photo" type="file" accept="image/*" /></label>
+        </div>
+        <div class="dialog-actions">
+          <button type="button" class="ghost-button" id="clearProfile">Clear</button>
+          <button class="primary-button" value="default">Save Profile</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script src="src/data.js"></script>
+    <script src="src/app.js"></script>
+  </body>
+</html>
