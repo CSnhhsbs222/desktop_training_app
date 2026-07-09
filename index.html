@@ -59,6 +59,204 @@
     <script src="src/app.js"></script>
     <script>
       let trainingDashboardTab = 'calendar';
+      let selectedCalendarDate = '2026-07-20';
+      const julyTrainingSchedule = {
+        '2026-07-20': {
+          label: 'Monday, 7/20/2026',
+          summary: 'Enterprise New Hire Orientation',
+          blocks: [
+            {
+              time: '8:00 AM – 2:00 PM',
+              title: 'Enterprise New Hire Orientation',
+              details: ['Location: Work from home', 'Note: Zoom link provided from HR through email', 'Access on personal device']
+            },
+            {
+              time: '2:30 PM',
+              title: 'Brief check-in with Team Lead',
+              details: ['Phone call']
+            }
+          ]
+        },
+        '2026-07-21': {
+          label: 'Tuesday, 7/21/2026',
+          summary: 'Tennessee New Hire Orientation and local team connection',
+          blocks: [
+            {
+              time: '8:00 AM – 11:00 AM',
+              title: 'Tennessee New Hire Orientation',
+              details: ['Location: Work from home', 'Note: Zoom link provided from HR through email', 'Access on personal device']
+            },
+            {
+              time: '1:00 PM – 4:00 PM',
+              title: 'Local orientation and equipment setup',
+              details: [
+                'Location: 2400 White Avenue | Nashville, TN 37204',
+                'Note: Please consider traffic in travel time so that we can start as a group. Park behind the building. If facing the front, park around the left side. Walk toward the front of the building and there first door on the side of the building there will be a member of the leadership team to welcome you. If you are running behind please text your team lead to let them know.',
+                'Theme: orientation to the larger organization — helping new clinicians move from enterprise onboarding into local team connection, technology readiness, and practical confidence for the week ahead.',
+                '1:00 PM – 2:05 PM Welcome & Introductions: Icebreaker and a tour of the clinic, meet the clinic manager and office manager, Meet the director of CCFT & School-based services (Northern region of TN market), review the schedule for the week.',
+                '2:15 PM – 3:50 PM Equipment testing and setup',
+                'Homework: Explore the Source for 5 minutes from home to ensure your laptop works off campus, email christopher.fuqua@centerstone.org and note thing you found that was interesting on the Source.'
+              ]
+            }
+          ]
+        },
+        '2026-07-22': {
+          label: 'Wednesday, 7/22/2026',
+          summary: 'Program orientation, belonging, and ecosystem work',
+          blocks: [
+            {
+              time: '8:00 AM – 4:00 PM',
+              title: 'Program orientation and ecosystem work',
+              details: [
+                'Location: 1921 Ransom Place | Nashville TN 37217',
+                'Note: Park on the side of the building, a member of the leadership team will meet you in the lobby, enter through the main entrance.',
+                'Theme: orientation to our program & belonging, helping new clinicians understand the ecosystem they’re entering, how they fit within it, and how to sustain themselves while building connection and confidence in their professional identity.',
+                '8:00 AM – 8:45 AM School-Based Hub (Desktop and Mobile App) Setup and Exploration',
+                '8:50 AM – 9:45 AM School-Based Manual Review',
+                '10:00 AM – 10:55 AM Ecosystem Workbook Section 1 + Discussion',
+                '11:00 AM – 12:00 PM Workbook Section 1 Continued Discussion, Reflection, and Q&A',
+                '12:00 PM – 1:00 PM Lunch',
+                '1:00 PM – 1:15 PM Team Building Activity',
+                '1:20 PM – 2:50 PM New Hire Group (Week 1 + Week 2)'
+              ]
+            }
+          ]
+        },
+        '2026-07-23': {
+          label: 'Thursday, 07/23/2026',
+          summary: 'Relias, Scheduling for Success, and Telehealth 101',
+          blocks: [
+            {
+              time: '8:00 AM – 12:00 PM',
+              title: 'Self-paced Relias training',
+              details: ['Location: Work from home', 'Note: Complete Avatar Basic Nav and clinical documentation review required to proceed with training on 07/24/2026']
+            },
+            {
+              time: '1:00 PM – 4:00 PM',
+              title: 'Structure for success and telehealth tools',
+              details: [
+                'Location: 2400 White Avenue | Nashville, TN 37204',
+                'Theme: building structure for success, helping new clinicians connect required training, scheduling habits, and practical tools so they can move into client-facing work with clarity, confidence, and fewer “where did I put that?” moments.',
+                '1:00 PM – 2:50 PM Scheduling for Success',
+                'Homework: Add recurring team meeting and clinical supervision to your Avatar schedule through January if you already know the day and time.',
+                '3:00 PM – 3:50 PM Telehealth 101',
+                'Homework: Bookmark 3 go to interventions or therapeutic activities you can use in session with a client or a parent.'
+              ]
+            }
+          ]
+        },
+        '2026-07-24': {
+          label: 'Friday, 07/24/2026',
+          summary: 'Avatar, relationship building, and ecosystem discussion',
+          blocks: [
+            {
+              time: '8:00 AM – 4:00 PM',
+              title: 'Practice, partnership, and sustainability',
+              details: [
+                'Location: 2400 White Avenue | Nashville, TN 37204',
+                'Theme: practice, partnership, and sustainability, helping new clinicians learn the core workflows, build school relationships, and protect their energy while developing documentation and service habits that can actually survive the school year.',
+                '8:00 AM – 10:50 AM Avatar Basic Navigation',
+                'Homework: Practice the new client workflow: admitting, describing forms to parents, and scheduling your first practice client using provided referral form.',
+                '11:00 AM – 12:00 PM Relationship building',
+                'Homework: Update on of the templates provided or create a similarly styled service flyer to create a flyer to take with you when you meet with your school(s) for the first time. Please copy and paste the verbiage found in the template.',
+                '12:00 PM – 1:00 PM Lunch (catered)',
+                '1:00 PM – 3:00 PM Ecosystem workbook 3 & 4 + discussion'
+              ]
+            }
+          ]
+        },
+        '2026-07-27': {
+          label: 'Monday, 07/27/2026',
+          summary: 'Clinical Documentation 2, Avatar 2, and Relias',
+          blocks: [
+            {
+              time: '8:00 AM – 12:00 PM',
+              title: 'Clinical Documentation 2 and Avatar 2 (Intake) with Christina Gillim',
+              details: ['Virtual Training', 'Location: Zoom meeting: https://centerstone.zoom.us/j/92835356110']
+            },
+            {
+              time: '1:00 PM – 4:00 PM',
+              title: 'Complete Relias trainings',
+              details: ['Location: Self-paced work from home']
+            }
+          ]
+        },
+        '2026-07-28': {
+          label: 'Tuesday, 07/28/2026',
+          summary: 'School ecosystem work and Relias',
+          blocks: [
+            {
+              time: '8:00 AM – 12:00 PM',
+              title: 'Ecosystem Workbook 5 & 6 + discussion',
+              details: [
+                'Location: 2400 White Ave | Nashville, TN 37204',
+                'Theme: working inside the school ecosystem — helping new clinicians understand school culture, protect confidentiality, maintain healthy boundaries, and practice sustainable care when everything around them feels urgent.',
+                '8:00 AM – 12:00 PM Ecosystem Workbook 5 & 6 + discussion'
+              ]
+            },
+            {
+              time: '1:00 PM – 4:00 PM',
+              title: 'Complete Relias trainings',
+              details: ['Location: Self-paced work from home']
+            }
+          ]
+        },
+        '2026-07-29': {
+          label: 'Wednesday, 07/29/2026',
+          summary: 'Clinical Documentation and Avatar 3',
+          blocks: [
+            {
+              time: '8:00 AM – 12:00 PM',
+              title: 'Clinical Documentation and Avatar 3 (Diagnosis and TCP) with Christina Gillim',
+              details: ['Virtual Training', 'Location: Zoom meeting: https://centerstone.zoom.us/j/92835356110']
+            },
+            {
+              time: '1:00 PM – 4:00 PM',
+              title: 'Complete Relias trainings',
+              details: ['Location: Self-paced work from home']
+            }
+          ]
+        },
+        '2026-07-30': {
+          label: 'Thursday, 07/30/2026',
+          summary: 'Integration, prevention, diagnosing, and Eleos',
+          blocks: [
+            {
+              time: '8:00 AM – 4:00 PM',
+              title: 'Integration and readiness',
+              details: [
+                'Location: 2400 White Avenue | Nashville, TN 37204',
+                'Theme: integration and readiness — helping new clinicians connect the moving parts of school-based work, from documentation and supervision to emergency protocols, diagnosis, pathways, and tech tools, so they leave with clearer systems, stronger confidence, and fewer “wait, where does this go?” moments.',
+                '8:00 AM – 8:55 AM New Hire Group Week 2 Email Mastery and Workflow Foundations',
+                '9:05 AM – 10:15 AM Ecosystem Workbook 7 & 8 + discussion',
+                '10:30 AM – 12:00 PM Prevention Pathway Overview',
+                'Homework: 1. Learn about additional resources to support your clients. Explore https://nowmattersnow.org 2. Download any SBSP app and try to create a safety plan for your test client.',
+                '12:00 PM – 1:00 PM Lunch',
+                '1:00 PM – 2:20 PM Diagnosing with Confidence',
+                'Homework: Nothing builds confidence more than practice. Review at least one client’s chart that is assigned to you? Review the current diagnosis, intake assessment, any assessments administered, 1-2 care plans, and recent progress notes/ambulatory progress notes. Do you believe this diagnosis is accurate? Why or why not? What do you need to be able to fully support this diagnosis? Once ready, staff in clinical supervision.',
+                '2:30 PM – 3:50 PM Eleos: Putting it into practice',
+                'Homework: Practice introducing Eleos to a peer as if you were introducing it to a parent.'
+              ]
+            }
+          ]
+        },
+        '2026-07-31': {
+          label: 'Friday, 07/31/2026',
+          summary: 'Clinical Documentation and Avatar 4',
+          blocks: [
+            {
+              time: '8:00 AM – 12:00 PM',
+              title: 'Clinical Documentation and Avatar 4 (Progress Notes, Updating Dx & TCP, and Discharge) with Christina Gillim',
+              details: ['Virtual Training', 'Location: Zoom meeting: https://centerstone.zoom.us/j/92835356110']
+            },
+            {
+              time: '1:00 PM – 4:00 PM',
+              title: 'Complete Relias trainings',
+              details: ['Location: Self-paced work from home.']
+            }
+          ]
+        }
+      };
       const coreTrainingOrder = [
         'avatar',
         'scheduling',
@@ -81,6 +279,49 @@
           ...placeholderCoreTrainings
         ];
       }
+      function renderJulyCalendar() {
+        const weekDayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const calendarDays = [];
+        for (let i = 0; i < 3; i += 1) calendarDays.push(null);
+        for (let day = 1; day <= 31; day += 1) calendarDays.push(day);
+        while (calendarDays.length % 7 !== 0) calendarDays.push(null);
+        const selectedDay = julyTrainingSchedule[selectedCalendarDate];
+        return `
+          <div class="card calendar-card">
+            <div class="calendar-intro">
+              <div>
+                <p class="eyebrow">Training Calendar</p>
+                <h2>July 2026</h2>
+                <p>Click a scheduled day to view the plain-text agenda details. More months can be added later as training dates are finalized.</p>
+              </div>
+              <strong>${Object.keys(julyTrainingSchedule).length} scheduled days</strong>
+            </div>
+            <div class="monthly-calendar" aria-label="July 2026 training calendar">
+              ${weekDayNames.map(day => `<div class="calendar-weekday">${day}</div>`).join('')}
+              ${calendarDays.map(day => {
+                if (!day) return '<div class="calendar-day calendar-empty" aria-hidden="true"></div>';
+                const dateKey = `2026-07-${String(day).padStart(2, '0')}`;
+                const schedule = julyTrainingSchedule[dateKey];
+                if (!schedule) return `<div class="calendar-day"><span>${day}</span></div>`;
+                return `<button class="calendar-day calendar-scheduled ${selectedCalendarDate === dateKey ? 'selected' : ''}" data-calendar-date="${dateKey}"><span>${day}</span><small>Click here</small><strong>${schedule.summary}</strong></button>`;
+              }).join('')}
+            </div>
+          </div>
+          <div class="card day-detail-card">
+            <p class="eyebrow">Selected Day</p>
+            <h2>${selectedDay.label}</h2>
+            <div class="day-agenda">
+              ${selectedDay.blocks.map(block => `
+                <div class="agenda-block">
+                  <strong>${block.time}</strong>
+                  <h3>${block.title}</h3>
+                  ${block.details.map(detail => `<p>${detail}</p>`).join('')}
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
       renderTraining = function () {
         const trainings = orderedCoreTrainings();
         const currentTraining = trainings[selectedTraining] || trainings[0];
@@ -101,13 +342,7 @@
           <div id="trainingTabPanel"></div>
         `;
         if (trainingDashboardTab === 'calendar') {
-          byId('trainingTabPanel').innerHTML = `
-            <div class="card">
-              <p class="eyebrow">Training Calendar</p>
-              <h2>Training Calendar</h2>
-              <p>Placeholder for the new hire training calendar. Dates, times, Zoom links, and schedule details will be added later.</p>
-            </div>
-          `;
+          byId('trainingTabPanel').innerHTML = renderJulyCalendar();
         }
         if (trainingDashboardTab === 'core') {
           byId('trainingTabPanel').innerHTML = `
@@ -130,9 +365,15 @@
       };
       document.addEventListener('click', event => {
         const tab = event.target.closest('[data-training-tab]');
-        if (!tab) return;
-        trainingDashboardTab = tab.dataset.trainingTab;
-        if (trainingDashboardTab !== 'core') selectedTraining = 0;
+        if (tab) {
+          trainingDashboardTab = tab.dataset.trainingTab;
+          if (trainingDashboardTab !== 'core') selectedTraining = 0;
+          renderTraining();
+          return;
+        }
+        const calendarDay = event.target.closest('[data-calendar-date]');
+        if (!calendarDay) return;
+        selectedCalendarDate = calendarDay.dataset.calendarDate;
         renderTraining();
       });
       renderTraining();
