@@ -57,6 +57,86 @@
 
     <script src="src/data.js"></script>
     <script src="src/app.js"></script>
+    <script>
+      let trainingDashboardTab = 'calendar';
+      const coreTrainingOrder = [
+        'avatar',
+        'scheduling',
+        'relationship',
+        'telehealth',
+        'diagnosing',
+        'prevention',
+        'eleos',
+        'groups',
+        'cohort'
+      ];
+      const placeholderCoreTrainings = [
+        { id: 'ecosystem-workbook', title: 'Ecosystem Workbook', trainer: 'Training team', purpose: 'Placeholder content for a later microbuild.', objectives: ['Placeholder content for a later microbuild.'], resources: [] },
+        { id: 'shadowing-mentorship', title: 'Shadowing & Mentorship', trainer: 'Training team', purpose: 'Placeholder content for a later microbuild.', objectives: ['Placeholder content for a later microbuild.'], resources: [] }
+      ];
+      function orderedCoreTrainings() {
+        const existing = HUB_DATA.trainings || [];
+        return [
+          ...coreTrainingOrder.map(id => existing.find(training => training.id === id)).filter(Boolean),
+          ...placeholderCoreTrainings
+        ];
+      }
+      renderTraining = function () {
+        const trainings = orderedCoreTrainings();
+        const currentTraining = trainings[selectedTraining] || trainings[0];
+        byId('training').innerHTML = `
+          <div class="card training-hero">
+            <div>
+              <p class="eyebrow">Training Dashboard</p>
+              <h2>Training Dashboard</h2>
+              <p>Use the tabs below to access the training calendar, core trainings, and Relias training list.</p>
+            </div>
+            <strong>3 tabs</strong>
+          </div>
+          <div class="check-tabs">
+            <button class="tab-button ${trainingDashboardTab === 'calendar' ? 'active' : ''}" data-training-tab="calendar">Training Calendar</button>
+            <button class="tab-button ${trainingDashboardTab === 'core' ? 'active' : ''}" data-training-tab="core">Core Trainings</button>
+            <button class="tab-button ${trainingDashboardTab === 'relias' ? 'active' : ''}" data-training-tab="relias">Relias Trainings</button>
+          </div>
+          <div id="trainingTabPanel"></div>
+        `;
+        if (trainingDashboardTab === 'calendar') {
+          byId('trainingTabPanel').innerHTML = `
+            <div class="card">
+              <p class="eyebrow">Training Calendar</p>
+              <h2>Training Calendar</h2>
+              <p>Placeholder for the new hire training calendar. Dates, times, Zoom links, and schedule details will be added later.</p>
+            </div>
+          `;
+        }
+        if (trainingDashboardTab === 'core') {
+          byId('trainingTabPanel').innerHTML = `
+            <div class="training-dashboard-grid page-gap">
+              <div class="training-card-grid">${trainings.map((training, index) => trainingCard(training, index)).join('')}</div>
+              <div id="trainingDetail" class="card training-detail-card"></div>
+            </div>
+          `;
+          renderTrainingDetail(currentTraining);
+        }
+        if (trainingDashboardTab === 'relias') {
+          byId('trainingTabPanel').innerHTML = `
+            <div class="card">
+              <p class="eyebrow">Relias Trainings</p>
+              <h2>Relias Trainings</h2>
+              <p>Placeholder for the required Relias training list and suggested completion order. No links or details have been added yet.</p>
+            </div>
+          `;
+        }
+      };
+      document.addEventListener('click', event => {
+        const tab = event.target.closest('[data-training-tab]');
+        if (!tab) return;
+        trainingDashboardTab = tab.dataset.trainingTab;
+        if (trainingDashboardTab !== 'core') selectedTraining = 0;
+        renderTraining();
+      });
+      renderTraining();
+    </script>
     <script src="src/resource-launchers.js"></script>
   </body>
 </html>
