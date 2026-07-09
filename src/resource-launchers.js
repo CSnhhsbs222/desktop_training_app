@@ -129,7 +129,7 @@ document.addEventListener('click', function (event) {
     'Stanley-Brown Safety Plan': 'assets/resources/Stanley Brown Safety Plan.pdf',
     'Safety Sweep Checklist': 'assets/resources/Safety Sweep Checklist.pdf',
     'Eleos: Putting It Into Practice': 'assets/resources/Eleos — Putting It Into Practice.pptx',
-    'Using Eleos': 'assets/resources/Using Eleos.docx',
+    'Using Eleos + Collaborative Documentation': 'assets/resources/Using Eleos.docx',
     'School-Based Ecosystem Workbook': 'assets/resources/A therapist field guide to the school-based ecosystem (final).pdf',
     'Mentorship': 'assets/resources/Mentorship.docx'
   };
