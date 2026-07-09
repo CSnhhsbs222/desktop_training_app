@@ -24,7 +24,10 @@ document.addEventListener('click', function (event) {
     'Relationship Building': 'assets/resources/Relationship Building.pptx',
     'Service Flyer Option 1': 'assets/resources/Service Flyer (Option 1).pdf',
     'Service Flyer Option 2': 'assets/resources/Service Flyer (Option 2).pdf',
-    'Service Flyer Option 3': 'assets/resources/Service Flyer (Option 3).pdf'
+    'Service Flyer Option 3': 'assets/resources/Service Flyer (Option 3).pdf',
+    'Telehealth 101': 'assets/resources/Telehealth 101.pptx',
+    'Telehealth Procedures': 'assets/resources/Telehealth Procedures 5-2-24 Final.pdf',
+    'Telehealth Toybox': 'assets/resources/Telehealth toybox.docx'
   };
 
   const resourceFile = resourceMap[button.textContent.trim()];
