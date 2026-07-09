@@ -6,10 +6,37 @@ function normalizeResourceLabels() {
   });
 }
 
+function applyEcosystemWorkbookTraining() {
+  if (typeof placeholderCoreTrainings === 'undefined') return;
+
+  const ecosystemTraining = placeholderCoreTrainings.find(function (training) {
+    return training.id === 'ecosystem-workbook';
+  });
+
+  if (!ecosystemTraining) return;
+
+  ecosystemTraining.title = 'School-Based Ecosystem Workbook';
+  ecosystemTraining.trainer = 'School-Based Services Training Team';
+  ecosystemTraining.purpose = 'A field guide and companion workbook that helps new therapists understand role clarity, school culture, clinical identity, boundaries, sustainability, and the realities of embedded school-based practice.';
+  ecosystemTraining.objectives = [
+    'Understand the school-based ecosystem and the therapist role within it.',
+    'Reflect on clinical identity, role clarity, and professional sustainability.',
+    'Explore how school culture, urgency, confidentiality, and boundaries shape daily practice.',
+    'Use workbook reflections to support team lead conversations during onboarding.'
+  ];
+  ecosystemTraining.resources = ['School-Based Ecosystem Workbook'];
+}
+
 const resourceLabelObserver = new MutationObserver(normalizeResourceLabels);
 resourceLabelObserver.observe(document.body, { childList: true, subtree: true });
-document.addEventListener('DOMContentLoaded', normalizeResourceLabels);
+document.addEventListener('DOMContentLoaded', function () {
+  applyEcosystemWorkbookTraining();
+  normalizeResourceLabels();
+  if (typeof renderTraining === 'function') renderTraining();
+});
+applyEcosystemWorkbookTraining();
 normalizeResourceLabels();
+if (typeof renderTraining === 'function') renderTraining();
 
 document.addEventListener('click', function (event) {
   const button = event.target.closest('.resource-launch');
@@ -43,7 +70,8 @@ document.addEventListener('click', function (event) {
     'Stanley-Brown Safety Plan': 'assets/resources/Stanley Brown Safety Plan.pdf',
     'Safety Sweep Checklist': 'assets/resources/Safety Sweep Checklist.pdf',
     'Eleos: Putting It Into Practice': 'assets/resources/Eleos — Putting It Into Practice.pptx',
-    'Using Eleos': 'assets/resources/Using Eleos.docx'
+    'Using Eleos': 'assets/resources/Using Eleos.docx',
+    'School-Based Ecosystem Workbook': 'assets/resources/A therapist field guide to the school-based ecosystem (final).pdf'
   };
 
   const resourceFile = resourceMap[button.textContent.trim()];
