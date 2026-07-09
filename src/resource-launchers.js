@@ -41,7 +41,9 @@ document.addEventListener('click', function (event) {
     'INQ-15': 'assets/resources/Interpersonal needs questionnaire INQ-15.pdf',
     'RROVS': 'assets/resources/Rapid Risk of Violence Screen- RROVS.pdf',
     'Stanley-Brown Safety Plan': 'assets/resources/Stanley Brown Safety Plan.pdf',
-    'Safety Sweep Checklist': 'assets/resources/Safety Sweep Checklist.pdf'
+    'Safety Sweep Checklist': 'assets/resources/Safety Sweep Checklist.pdf',
+    'Eleos: Putting It Into Practice': 'assets/resources/Eleos — Putting It Into Practice.pptx',
+    'Using Eleos': 'assets/resources/Using Eleos.docx'
   };
 
   const resourceFile = resourceMap[button.textContent.trim()];
