@@ -33,7 +33,15 @@ document.addEventListener('click', function (event) {
     'Episodes of Care FAQ': 'assets/resources/Episodes of Care - FAQ 3.2024.pdf',
     'DSM-5-TR Guess Who Rulebook': 'assets/resources/DSM-5-TR Guess Who - Official Rulebook.docx',
     'Printable Game Kit': 'assets/resources/DSM-5-TR Guess Who - Printable Game Kit.pptx',
-    'Symptom Cluster Quick Reference': 'assets/resources/DSM-5-TR Guess Who - Symptom Cluster Quick Reference Sheet.docx'
+    'Symptom Cluster Quick Reference': 'assets/resources/DSM-5-TR Guess Who - Symptom Cluster Quick Reference Sheet.docx',
+    'Prevention Pathway Overview': 'assets/resources/Prevention Pathway Overview.pptx',
+    'Prevention Pathway Quick Reference': 'assets/resources/Prevention Pathways Quick Reference.pdf',
+    'C-SSRS Lifetime/Recent': 'assets/resources/C-SSRS-Full-Lifetime-Recent-2026.pdf',
+    'C-SSRS Child Screener': 'assets/resources/C-SSRS-Screener-Child-2026.pdf',
+    'INQ-15': 'assets/resources/Interpersonal needs questionnaire INQ-15.pdf',
+    'RROVS': 'assets/resources/Rapid Risk of Violence Screen- RROVS.pdf',
+    'Stanley-Brown Safety Plan': 'assets/resources/Stanley Brown Safety Plan.pdf',
+    'Safety Sweep Checklist': 'assets/resources/Safety Sweep Checklist.pdf'
   };
 
   const resourceFile = resourceMap[button.textContent.trim()];
