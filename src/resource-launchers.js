@@ -27,16 +27,75 @@ function applyEcosystemWorkbookTraining() {
   ecosystemTraining.resources = ['School-Based Ecosystem Workbook'];
 }
 
-const resourceLabelObserver = new MutationObserver(normalizeResourceLabels);
+function applyShadowingMentorshipTraining() {
+  if (typeof placeholderCoreTrainings === 'undefined') return;
+
+  const training = placeholderCoreTrainings.find(function (item) {
+    return item.id === 'shadowing-mentorship';
+  });
+
+  if (!training) return;
+
+  training.title = 'Shadowing and Mentorship';
+  training.trainer = 'School-Based Services Training Team';
+  training.purpose = 'Shadowing and mentorship work together to give you a supported, realistic start in school-based work. Through shadowing, you’ll observe how at least three of your peers function as outpatient therapists within a school setting—how they manage time, adapt to barriers, provide quality care, and build healthy, supportive relationships with their schools. Mentorship then gives you a connection point with someone who has been exactly where you are, offering relatable guidance and a professional relationship that helps you navigate challenges, grow, and feel grounded during your first 60 days.';
+  training.objectives = [
+    'Observe the workflow of at least three peers to understand how outpatient therapists operate within a school environment.',
+    'Identify how therapists adapt to common barriers while providing quality care, managing their time, and fostering supportive school relationships.',
+    'Build a supportive professional relationship with a mentor who has shared your role and can help you navigate early challenges.',
+    'Apply mentor guidance to strengthen your workflow, confidence, and day-to-day problem-solving during your first 60 days.'
+  ];
+  training.resources = ['Mentorship'];
+}
+
+function formatShadowingMentorshipObjectives() {
+  const detail = document.querySelector('#trainingDetail');
+  if (!detail) return;
+
+  const title = detail.querySelector('h2');
+  if (!title || title.textContent.trim() !== 'Shadowing and Mentorship') return;
+
+  const sections = detail.querySelectorAll('.detail-section');
+  const objectiveSection = Array.from(sections).find(function (section) {
+    const heading = section.querySelector('h3');
+    return heading && heading.textContent.trim() === 'Objectives';
+  });
+
+  if (!objectiveSection || objectiveSection.dataset.grouped === 'true') return;
+
+  objectiveSection.dataset.grouped = 'true';
+  objectiveSection.innerHTML = `
+    <h3>Learning Objectives</h3>
+    <h4>Shadowing Learning Objectives</h4>
+    <ul class="objectives">
+      <li>Observe the workflow of at least three peers to understand how outpatient therapists operate within a school environment.</li>
+      <li>Identify how therapists adapt to common barriers while providing quality care, managing their time, and fostering supportive school relationships.</li>
+    </ul>
+    <h4>Mentorship Learning Objectives</h4>
+    <ul class="objectives">
+      <li>Build a supportive professional relationship with a mentor who has shared your role and can help you navigate early challenges.</li>
+      <li>Apply mentor guidance to strengthen your workflow, confidence, and day-to-day problem-solving during your first 60 days.</li>
+    </ul>
+  `;
+}
+
+const resourceLabelObserver = new MutationObserver(function () {
+  normalizeResourceLabels();
+  formatShadowingMentorshipObjectives();
+});
 resourceLabelObserver.observe(document.body, { childList: true, subtree: true });
 document.addEventListener('DOMContentLoaded', function () {
   applyEcosystemWorkbookTraining();
+  applyShadowingMentorshipTraining();
   normalizeResourceLabels();
   if (typeof renderTraining === 'function') renderTraining();
+  formatShadowingMentorshipObjectives();
 });
 applyEcosystemWorkbookTraining();
+applyShadowingMentorshipTraining();
 normalizeResourceLabels();
 if (typeof renderTraining === 'function') renderTraining();
+formatShadowingMentorshipObjectives();
 
 document.addEventListener('click', function (event) {
   const button = event.target.closest('.resource-launch');
@@ -71,7 +130,8 @@ document.addEventListener('click', function (event) {
     'Safety Sweep Checklist': 'assets/resources/Safety Sweep Checklist.pdf',
     'Eleos: Putting It Into Practice': 'assets/resources/Eleos — Putting It Into Practice.pptx',
     'Using Eleos': 'assets/resources/Using Eleos.docx',
-    'School-Based Ecosystem Workbook': 'assets/resources/A therapist field guide to the school-based ecosystem (final).pdf'
+    'School-Based Ecosystem Workbook': 'assets/resources/A therapist field guide to the school-based ecosystem (final).pdf',
+    'Mentorship': 'assets/resources/Mentorship.docx'
   };
 
   const resourceFile = resourceMap[button.textContent.trim()];
