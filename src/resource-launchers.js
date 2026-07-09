@@ -4,7 +4,9 @@ document.addEventListener('click', function (event) {
 
   const resourceMap = {
     'Avatar Basic Navigation': 'assets/resources/Avatar Basic Navigation.pptx',
-    'School-Based Fillable Forms': 'assets/resources/School-based fillable forms.pdf'
+    'School-Based Fillable Forms': 'assets/resources/School-based fillable forms.pdf',
+    'Scheduling for Success': 'assets/resources/Scheduling for Success.pptx',
+    'District Calendars': 'assets/resources/Scheduler for Success.xlsx'
   };
 
   const resourceFile = resourceMap[button.textContent.trim()];
