@@ -292,7 +292,7 @@
               <div>
                 <p class="eyebrow">Training Calendar</p>
                 <h2>July 2026</h2>
-                <p>Click a scheduled day to view the plain-text agenda details. More months can be added later as training dates are finalized.</p>
+                <p>Select the day for a detailed view.</p>
               </div>
               <strong>${Object.keys(julyTrainingSchedule).length} scheduled days</strong>
             </div>
@@ -303,7 +303,7 @@
                 const dateKey = `2026-07-${String(day).padStart(2, '0')}`;
                 const schedule = julyTrainingSchedule[dateKey];
                 if (!schedule) return `<div class="calendar-day"><span>${day}</span></div>`;
-                return `<button class="calendar-day calendar-scheduled ${selectedCalendarDate === dateKey ? 'selected' : ''}" data-calendar-date="${dateKey}"><span>${day}</span><small>Click here</small><strong>${schedule.summary}</strong></button>`;
+                return `<button class="calendar-day calendar-scheduled ${selectedCalendarDate === dateKey ? 'selected' : ''}" data-calendar-date="${dateKey}"><span>${day}</span><strong>${schedule.summary}</strong></button>`;
               }).join('')}
             </div>
           </div>
@@ -330,7 +330,7 @@
             <div>
               <p class="eyebrow">Training Dashboard</p>
               <h2>Training Dashboard</h2>
-              <p>Use the tabs below to access the training calendar, core trainings, and Relias training list.</p>
+              <p>Learning is one adventure where you always return richer than you left.</p>
             </div>
             <strong>3 tabs</strong>
           </div>
