@@ -131,6 +131,8 @@ document.addEventListener('click', function (event) {
     'Eleos: Putting It Into Practice': 'assets/resources/Eleos — Putting It Into Practice.pptx',
     'Using Eleos + Collaborative Documentation': 'assets/resources/Using Eleos.docx',
     'Starting School-Based Group Therapy': 'assets/resources/Starting School-Based Group Therapy.pptx',
+    'New Hire Cohort Workbook': 'assets/resources/New Hire Cohort Workbook.pdf',
+    'New Hire Group Weekly Rotatable Deck': 'assets/resources/New Hire Group Weekly Rotatable.pptx',
     'School-Based Ecosystem Workbook': 'assets/resources/A therapist field guide to the school-based ecosystem (final).pdf',
     'Mentorship': 'assets/resources/Mentorship.docx'
   };
