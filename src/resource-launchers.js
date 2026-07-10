@@ -130,6 +130,7 @@ document.addEventListener('click', function (event) {
     'Safety Sweep Checklist': 'assets/resources/Safety Sweep Checklist.pdf',
     'Eleos: Putting It Into Practice': 'assets/resources/Eleos — Putting It Into Practice.pptx',
     'Using Eleos + Collaborative Documentation': 'assets/resources/Using Eleos.docx',
+    'Starting School-Based Group Therapy': 'assets/resources/Starting School-Based Group Therapy.pptx',
     'School-Based Ecosystem Workbook': 'assets/resources/A therapist field guide to the school-based ecosystem (final).pdf',
     'Mentorship': 'assets/resources/Mentorship.docx'
   };
