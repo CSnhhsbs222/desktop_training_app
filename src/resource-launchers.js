@@ -48,6 +48,14 @@ function applyShadowingMentorshipTraining() {
   training.resources = ['Mentorship'];
 }
 
+function simplifyCoreTrainingCards() {
+  if (typeof trainingCard !== 'function') return;
+
+  trainingCard = function (training, index) {
+    return `<button class="training-tile ${index === selectedTraining ? 'active' : ''}" data-training="${index}"><strong>${esc(training.title)}</strong></button>`;
+  };
+}
+
 function formatShadowingMentorshipObjectives() {
   const detail = document.querySelector('#trainingDetail');
   if (!detail) return;
@@ -87,12 +95,14 @@ resourceLabelObserver.observe(document.body, { childList: true, subtree: true })
 document.addEventListener('DOMContentLoaded', function () {
   applyEcosystemWorkbookTraining();
   applyShadowingMentorshipTraining();
+  simplifyCoreTrainingCards();
   normalizeResourceLabels();
   if (typeof renderTraining === 'function') renderTraining();
   formatShadowingMentorshipObjectives();
 });
 applyEcosystemWorkbookTraining();
 applyShadowingMentorshipTraining();
+simplifyCoreTrainingCards();
 normalizeResourceLabels();
 if (typeof renderTraining === 'function') renderTraining();
 formatShadowingMentorshipObjectives();
