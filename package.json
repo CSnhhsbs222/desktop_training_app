@@ -1,1 +1,15 @@
-{"name":"centerstone-new-hire-hub-desktop","version":"0.1.0","description":"Simplified Centerstone school-based new hire training desktop app.","main":"electron/main.js","scripts":{"start":"electron .","dev":"electron .","build:mac":"electron-builder --mac","build:win":"electron-builder --win","build:dir":"electron-builder --dir"},"keywords":["centerstone","training","desktop","electron"],"author":"","license":"UNLICENSED","devDependencies":{"electron":"^33.2.1","electron-builder":"^25.1.8"},"build":{"appId":"org.centerstone.schoolbased.newhirehub","productName":"New Hire Hub","directories":{"output":"dist"},"files":["electron/**/*","src/**/*","assets/**/*","index.html","package.json"],"mac":{"target":"dmg"},"win":{"target":"nsis"}}}
+{
+  "name": "new-hire-training-app",
+  "version": "0.2.0",
+  "description": "Browser-based New Hire Training App for Centerstone School-Based Services.",
+  "private": true,
+  "scripts": {},
+  "keywords": [
+    "centerstone",
+    "training",
+    "new-hire",
+    "web"
+  ],
+  "author": "",
+  "license": "UNLICENSED"
+}
