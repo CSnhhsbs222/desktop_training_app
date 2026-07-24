@@ -154,3 +154,31 @@ document.addEventListener('click', function (event) {
   event.stopImmediatePropagation();
   window.open(resourceFile, '_blank');
 }, true);
+
+// Use the standalone single-day scheduler as the Scheduling for Success tool.
+// Keeping it isolated in assets/tools makes it portable when the Hub moves from
+// Electron to a phone-first web app.
+if (typeof schedulerTemplate === 'function') {
+  schedulerTemplate = function () {
+    return `
+      <div class="scheduler-card" style="padding:0;overflow:hidden;">
+        <div class="scheduler-header" style="padding:16px 16px 0;">
+          <div>
+            <p class="eyebrow">Scheduling for Success</p>
+            <h2>Scheduler Tool</h2>
+            <p>Build one sample day, adjust CSG targets, and track progress toward the monthly incentive threshold.</p>
+          </div>
+        </div>
+        <iframe
+          src="assets/tools/csg-scheduler.html"
+          title="CSG Scheduling Simulator"
+          style="width:100%;height:1500px;border:0;display:block;background:#f3f5f4;"
+          loading="lazy">
+        </iframe>
+      </div>`;
+  };
+}
+
+if (typeof initScheduler === 'function') {
+  initScheduler = function () {};
+}
