@@ -1,3 +1,8 @@
+function hideLegacyProfileSettingsUI() {
+  const settingsButton = document.getElementById('openSettings');
+  if (settingsButton) settingsButton.hidden = true;
+}
+
 function normalizeResourceLabels() {
   document.querySelectorAll('.resource-launch').forEach(function (button) {
     if (button.textContent.trim() === 'District Calendars') {
@@ -93,6 +98,7 @@ const resourceLabelObserver = new MutationObserver(function () {
 });
 resourceLabelObserver.observe(document.body, { childList: true, subtree: true });
 document.addEventListener('DOMContentLoaded', function () {
+  hideLegacyProfileSettingsUI();
   applyEcosystemWorkbookTraining();
   applyShadowingMentorshipTraining();
   simplifyCoreTrainingCards();
@@ -100,6 +106,7 @@ document.addEventListener('DOMContentLoaded', function () {
   if (typeof renderTraining === 'function') renderTraining();
   formatShadowingMentorshipObjectives();
 });
+hideLegacyProfileSettingsUI();
 applyEcosystemWorkbookTraining();
 applyShadowingMentorshipTraining();
 simplifyCoreTrainingCards();
